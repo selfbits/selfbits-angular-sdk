@@ -1,11 +1,23 @@
 {
   "name": "selfbits-angular-sdk",
   "version": "1.0.0",
+  "license" : "MIT",
   "authors": [{
     "name": "Selfbits",
     "email": "info@selfbits.org"
   }],
+  "keywords": [
+    "angular",
+    "sdk",
+    "selfbits",
+    "backend"
+  ],
+  "homepage": "http://baas.selfbits.org",
   "main": ["dist/selfbits-angular.js"],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/selfbits/selfbits-angular-sdk.git"
+  },
   "ignore": [
     "src",
     "test",
