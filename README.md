@@ -1,6 +1,6 @@
 # selfbits-angular-sdk
 
-This package allows you to easily integrate the Selfbits Backend-as-Service into your Angular based project.
+This package allows you to easily integrate the Selfbits Backend-as-Service into your Angular based project. Please note that you MUST have a Selfbits BaaS Account and an active Project to use the service. Check out http://baas.selfbits.org for more info.
 
 ## Installation
 
