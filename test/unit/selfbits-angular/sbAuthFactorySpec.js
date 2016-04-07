@@ -1,8 +1,8 @@
 'use strict';
 
-describe('sbApi Factory', function() {
+describe('sbAuth Factory', function() {
 
-	var $sbApi;
+	var $sbAuth;
 	var $sbApiProvider;
 	var $httpBackend;
 	var $http;
@@ -14,8 +14,8 @@ describe('sbApi Factory', function() {
 		module('selfbitsAngular', function(_$sbApiProvider_) {
 			$sbApiProvider = _$sbApiProvider_;
 		})
-		inject(function(_$sbApi_, _$httpBackend_, _$http_, _$window_, _$interval_, _sbGuid_) {
-			$sbApi = _$sbApi_;
+		inject(function(_$sbAuth_, _$httpBackend_, _$http_, _$window_, _$interval_, _sbGuid_) {
+			$sbAuth = _$sbAuth_;
 			$httpBackend = _$httpBackend_;
 			$http = _$http_;
 			$window = _$window_;
@@ -34,7 +34,7 @@ describe('sbApi Factory', function() {
 	});
 
 	it('should load guid factory', function() {
-		expect($sbApi).to.be.ok;
+		expect($sbAuth).to.be.ok;
 	});
 
 	it('should have Id and Secret set in Header', function() {
@@ -42,7 +42,7 @@ describe('sbApi Factory', function() {
 		expect($http.defaults.headers.common['SB-App-Secret']).to.equal('fancySecret');
 	});
 
-	it('should allow login and exchange for JWT Token', function(done) {
+	it('login() should allow login and exchange for JWT Token', function(done) {
 		var user = {
 			email: 'wasd@wasd.de',
 			password: '1234'
@@ -51,14 +51,14 @@ describe('sbApi Factory', function() {
 			token: 'fancyToken'
 		});
 
-		$sbApi.login(user).then(function(res) {
+		$sbAuth.login(user).then(function(res) {
 			expect($http.defaults.headers.common['Authorization']).to.equal('Bearer fancyToken');
 			done();
 		});
 		$httpBackend.flush();
 	});
 
-	it('should allow signup and exchange for JWT Token', function(done) {
+	it('signup() should allow signup and exchange for JWT Token', function(done) {
 		var user = {
 			email: 'wasd@wasd.de',
 			password: '1234'
@@ -67,14 +67,14 @@ describe('sbApi Factory', function() {
 			token: 'fancyToken'
 		});
 
-		$sbApi.signup(user).then(function(res) {
+		$sbAuth.signup(user).then(function(res) {
 			expect($http.defaults.headers.common['Authorization']).to.equal('Bearer fancyToken');
 			done();
 		});
 		$httpBackend.flush();
 	});
 
-	it('should allow social auth', function(done) {
+	it('social() should allow social auth', function(done) {
 		/* 
 		 | this is a little tricky:
 		 | - spy on guid generation, as we need the generated values for the http mock 
@@ -92,13 +92,62 @@ describe('sbApi Factory', function() {
 			}
 		});
 
-		$sbApi.auth('facebook').then(function(res) {
+		$sbAuth.social('facebook').then(function(res) {
 			expect($http.defaults.headers.common['Authorization']).to.equal('Bearer fancyToken');
 			done();
 		});
-		/* needs to be called AFTER $sbApi.auth */
+		/* needs to be called AFTER $sbAuth.auth */
 		$interval.flush(1000);
 		$httpBackend.flush();
 	});
+
+
+	it('unlink() should allow to unlink a provider', function(done) {
+		$httpBackend.expect('DELETE', 'http://www.test.de/api/v1/oauth/facebook/unlink').respond(200, {
+			message: 'success'
+		});
+
+		$sbAuth.unlink('facebook').then(function(res) {
+			expect(res.message).to.equal('success');
+			done();
+		});
+		$httpBackend.flush();
+	});
+
+	it('password() should allow to change a password', function(done) {
+		$httpBackend.expect('POST', 'http://www.test.de/api/v1/auth/password', { newPassword: 'new', oldPassword: 'old'}).respond(200, {
+			message: 'success'
+		});
+
+		$sbAuth.password('new', 'old').then(function(res) {
+			expect(res.message).to.equal('success');
+			done();
+		});
+		$httpBackend.flush();
+	});
+
+	it('password() should allow to set a password', function(done) {
+		$httpBackend.expect('POST', 'http://www.test.de/api/v1/auth/password', { newPassword: 'new' }).respond(200, {
+			message: 'success'
+		});
+
+		$sbAuth.password('new').then(function(res) {
+			expect(res.message).to.equal('success');
+			done();
+		});
+		$httpBackend.flush();
+	});
+
+	it('logout() should remove HTTP header and token from localstorage', function(done) {
+		$window.localStorage.setItem('sb_token', 'wasd');
+		$http.defaults.headers.common['Authorization'] = 'Bearer wasd';
+
+		$sbAuth.logout();
+		expect($window.localStorage.getItem('sb_token')).to.be.null;
+		expect($http.defaults.headers.common['Authorization']).to.be.undefined;
+		done();
+	});
+
+
 
 });
