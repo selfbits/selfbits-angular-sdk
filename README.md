@@ -62,6 +62,104 @@ angular.module('MyApp')
 
 ```
 
+# API Reference
+
+## `$sbAuth`
+*$sbAuth.login(user)
+*$sbAuth.signup(user)
+*$sbAuth.social(provider)
+*$sbAuth.unlink(provider)
+
+### <a name="login"></a> `sbAuth.login(user)`
+Sign in using email and password:
+#### Parameters
+| Param        | Type          | Details  |
+| -------------|:-------------:| -----:|
+| user         | `Object`      | JavaScript object containing user information |
+#### Returns
+*__response__ the HTTP response object from the server
+#### Usage
+```javascript
+var user = {
+    email: 'abc@def.de',
+    password: 'mypassword'
+}
+
+$sbAuth.login(user)
+  .then(function(response) {
+    // Redirect user here after a successful log in.
+  })
+  .catch(function(response) {
+    // Handle errors here, such as displaying a notification
+    // for invalid email and/or password.
+  });
+```
+
+### `sbAuth.signup(user)`
+Sign up using email and password. You have to make sure to make neccessary sanity checks (e.g. password repeat, password strength).
+#### Parameters
+| Param        | Type          | Details  |
+| -------------|:-------------:| -----:|
+| user         | `Object`      | JavaScript object containing user information |
+#### Returns
+*__response__ the HTTP response object from the server
+#### Usage
+```javascript
+var user = {
+    email: 'abc@def.de',
+    password: 'mypassword'
+}
+
+$sbAuth.signup(user)
+  .then(function(response) {
+    // Redirect user here after a successful log in.
+  })
+  .catch(function(response) {
+    // Handle errors here, such as displaying a notification
+    // for invalid email and/or password.
+  });
+```
+
+### `sbAuth.social(provider)`
+Sign in **OR** up using social providers. Opens a popup window, that leads the user through the social auth flow.
+#### Parameters
+| Param        | Type          | Details  |
+| -------------|:-------------:| -----:|
+| provider     | `String`      | String with the Providername, e.g. 'facebook' |
+#### Returns
+*__response__ the HTTP response object from the server
+#### Usage
+```javascript
+$sbAuth.social('facebook')
+  .then(function(response) {
+    // Redirect user here after a successful log in.
+  })
+  .catch(function(response) {
+    // Handle errors here, such as displaying a notification
+    // for invalid email and/or password.
+  });
+```
+
+### `sbAuth.unlink(provider)`
+Unlink social providers from a user profile.
+#### Parameters
+| Param        | Type          | Details  |
+| -------------|:-------------:| -----:|
+| provider     | `String`      | String with the Providername, e.g. 'facebook' |
+#### Returns
+*__response__ the HTTP response object from the server
+#### Usage
+```javascript
+$sbAuth.unlink('facebook')
+  .then(function(response) {
+    // Redirect user here after a successful log in.
+  })
+  .catch(function(response) {
+    // Handle errors here, such as displaying a notification
+    // for invalid email and/or password.
+  });
+```
+
 ## License
 
 Copyright (c) 2016 Selfbits GmbH
