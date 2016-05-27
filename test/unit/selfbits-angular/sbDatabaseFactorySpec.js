@@ -44,4 +44,13 @@ describe('sbDatabase Factory', function() {
 		expect(testResult.data).to.equal('fancyData');
 	});
 
+	it('should allow to query a specific object', function() {
+		this.$httpBackend.expect('GET', 'http://www.test.de/api/v1/db/m/test/1234').respond(200, {
+			data: 'fancyData'
+		});
+		var testResult = this.$sbDatabase.table('test').get({ _id : 1234});
+		this.$httpBackend.flush();
+		expect(testResult.data).to.equal('fancyData');
+	});
+
 });
