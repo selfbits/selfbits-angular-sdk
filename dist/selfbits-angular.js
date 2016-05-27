@@ -161,13 +161,14 @@
 		};
 
 		function table(tableName) {
-			return $resource(sbConfig.domain + '/api/v1/database/' + tableName + '/:itemId', {
+			return $resource(sbConfig.domain + '/api/v1/db/m/' + tableName + '/:itemId', {
 				itemId: '@itemId'
 			});
 		}
 		return sbDatabase;
 	}
 })(angular);
+
 (function(angular) {
 	angular
 		.module('selfbitsAngular')
