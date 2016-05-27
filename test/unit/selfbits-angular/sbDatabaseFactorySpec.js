@@ -36,7 +36,7 @@ describe('sbDatabase Factory', function() {
 	});
 
 	it('should allow to query a table', function() {
-		this.$httpBackend.expect('GET', 'http://www.test.de/api/v1/database/test').respond(200, {
+		this.$httpBackend.expect('GET', 'http://www.test.de/api/v1/db/m/test').respond(200, {
 			data: 'fancyData'
 		});
 		var testResult = this.$sbDatabase.table('test').get();
