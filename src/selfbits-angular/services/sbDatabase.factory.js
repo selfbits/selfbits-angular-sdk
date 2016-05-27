@@ -9,8 +9,8 @@
 		};
 
 		function table(tableName) {
-			return $resource(sbConfig.domain + '/api/v1/db/m/' + tableName + '/:itemId', {
-				itemId: '@itemId'
+			return $resource(sbConfig.domain + '/api/v1/db/m/' + tableName + '/:_id', {
+				_id: '@_id'
 			});
 		}
 		return sbDatabase;
