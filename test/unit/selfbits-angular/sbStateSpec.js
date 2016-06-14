@@ -46,6 +46,19 @@ describe('sbState', function() {
 		expect(this.sbState.getToken()).to.equal('wasd');
 		done();
 	});
+	it('setUserId() should allow to set a userId', function(done) {
+		/* run function */
+		this.sbState.setUserId('12345');
+		/* check */
+		expect(this.$window.localStorage.getItem('userId')).to.equal('12345');
+		done();
+	});
+	it('getUserId() should return the userId', function(done) {
+		this.$window.localStorage.setItem('userId', '12345678');
+		/* run function/check */
+		expect(this.sbState.getUserId()).to.equal('12345678');
+		done();
+	});
 	it('clear() should remove the token from localstorage and $http', function(done) {
 		this.$http.defaults.headers.common['Authorization'] = "Bearer qwertz";
 		this.$window.localStorage.setItem('sb_token', 'qwertz');
