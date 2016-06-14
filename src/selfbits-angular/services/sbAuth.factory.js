@@ -3,7 +3,7 @@
         .module('selfbitsAngular')
         .factory('$sbAuth', sbAuth);
 
-    function sbAuth(sbConfig, sbState, $resource, $q, sbGuid, $http, $window, $interval, $timeout) {
+    function sbAuth(sbConfig, sbState, $resource, $q, sbGuid, $http, $window, $interval, $timeout, sbDevice) {
         var sbAuth = {
             social: social,
             unlink: unlink,
@@ -11,6 +11,7 @@
             signup: signup,
             logout: logout,
             password: password,
+            getUserId: getUserId,
             isAuthenticated: isAuthenticated
         };
 
@@ -20,8 +21,8 @@
             var popupUrl = sbConfig.domain + '/api/v1/oauth/' + providerName + '?sb_app_id=' + sbConfig.id + '&sb_app_secret=' + sbConfig.secret + '&state=' + uniqueState;
             var authWindow;
 
-            if (window.cordova && window.cordova.InAppBrowser) {
-                authWindow = window.cordova.InAppBrowser.open(popupUrl, '_blank', 'location=no');
+            if ($window.cordova && $window.cordova.InAppBrowser) {
+                authWindow = $window.cordova.InAppBrowser.open(popupUrl, '_blank', 'location=no');
                 authWindow.addEventListener('loadstop', function(event) {
                     if (event.url.indexOf(providerName + '/callback') > -1) {
                         authWindow.close();
@@ -35,8 +36,13 @@
                 authWindow.addEventListener('exit', function() {
                     $timeout(function() {
                         getToken(providerName, uniqueState).then(function(res) {
-                            deferred.resolve(res.data);
                             sbState.setToken(res.data.token);
+                            sbState.setUserId(res.data.userId);
+                            sbDevice.sync().then(function() {
+                                deferred.resolve(res.data);
+                            }, function(err) {
+                                deferred.reject(err);
+                            });
                         }, function(err) {
                             deferred.reject(err);
                         });
@@ -47,8 +53,9 @@
                 var pingWindow = $interval(function() {
                     if (authWindow.closed) {
                         getToken(providerName, uniqueState).then(function(res) {
-                            deferred.resolve(res.data);
+                            sbState.setUserId(res.data.userId);
                             sbState.setToken(res.data.token);
+                            deferred.resolve(res.data);
                         }, function(err) {
                             deferred.reject(err);
                         });
@@ -66,7 +73,6 @@
         function unlink(providerName) {
             var deferred = new $q.defer();
             $http.delete(sbConfig.domain + '/api/v1/oauth/' + providerName + '/unlink').then(function(res) {
-                sbState.setToken(res.data.token);
                 deferred.resolve(res.data);
             }, function(err) {
                 deferred.reject(err);
@@ -91,7 +97,12 @@
             var deferred = new $q.defer();
             $http.post(sbConfig.domain + '/api/v1/auth/login', user).then(function(res) {
                 sbState.setToken(res.data.token);
-                deferred.resolve(res.data);
+                sbState.setUserId(res.data.userId);
+                sbDevice.sync().then(function() {
+                    deferred.resolve(res.data);
+                }, function(err) {
+                    deferred.reject(err);
+                });
             }, function(err) {
                 deferred.reject(err);
             });
@@ -102,7 +113,12 @@
             var deferred = new $q.defer();
             $http.post(sbConfig.domain + '/api/v1/auth/signup', user).then(function(res) {
                 sbState.setToken(res.data.token);
-                deferred.resolve(res.data);
+                sbState.setUserId(res.data.userId);
+                sbDevice.sync().then(function() {
+                    deferred.resolve(res.data);
+                }, function(err) {
+                    deferred.reject(err);
+                });
             }, function(err) {
                 deferred.reject(err);
             });
@@ -111,6 +127,10 @@
 
         function logout() {
             sbState.clear();
+        }
+
+        function getUserId() {
+            return sbState.getUserId();
         }
 
         function isAuthenticated() {

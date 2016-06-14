@@ -64,10 +64,13 @@ describe('sbAuth Factory', function() {
 			password: '1234'
 		}
 		$httpBackend.expect('POST', 'http://www.test.de/api/v1/auth/signup', user).respond(200, {
-			token: 'fancyToken'
+			token: 'fancyToken',
+			userId: '64812372'
 		});
 
 		$sbAuth.signup(user).then(function(res) {
+			expect($window.localStorage.getItem('userId')).to.equal('64812372');
+			expect($window.localStorage.getItem('sb_token')).to.equal('fancyToken');
 			expect($http.defaults.headers.common['Authorization']).to.equal('Bearer fancyToken');
 			done();
 		});
@@ -75,9 +78,9 @@ describe('sbAuth Factory', function() {
 	});
 
 	it('social() should allow social auth', function(done) {
-		/* 
+		/*
 		 | this is a little tricky:
-		 | - spy on guid generation, as we need the generated values for the http mock 
+		 | - spy on guid generation, as we need the generated values for the http mock
 		 | - stub the window.open call and within that set closed property to true AND initialize mock with state guid
 		*/
 		var guidSpy = sinon.spy(sbGuid, 'gen');
@@ -85,7 +88,8 @@ describe('sbAuth Factory', function() {
 		var windowStub = sinon.stub($window, 'open', function() {
 			var genGuid = guidSpy.getCall(0).returnValue + guidSpy.getCall(1).returnValue;
 			$httpBackend.expect('GET', 'http://www.test.de/api/v1/oauth/facebook/token?sb_app_id=fancyId&sb_app_secret=fancySecret&state=' + genGuid).respond(200, {
-				token: 'fancyToken'
+				token: 'fancyToken',
+				userId: '648372'
 			});
 			return {
 				closed: true
@@ -93,6 +97,8 @@ describe('sbAuth Factory', function() {
 		});
 
 		$sbAuth.social('facebook').then(function(res) {
+			expect($window.localStorage.getItem('userId')).to.equal('648372');
+			expect($window.localStorage.getItem('sb_token')).to.equal('fancyToken');
 			expect($http.defaults.headers.common['Authorization']).to.equal('Bearer fancyToken');
 			done();
 		});
@@ -138,16 +144,23 @@ describe('sbAuth Factory', function() {
 		$httpBackend.flush();
 	});
 
-	it('logout() should remove HTTP header and token from localstorage', function(done) {
+	it('getUserId() should return the current users id', function(done) {
+		$window.localStorage.setItem('userId', '9876543');
+		var id = $sbAuth.getUserId();
+		expect(id).to.equal('9876543');
+		done();
+	});
+
+	it('logout() should remove HTTP header and token+userId from localstorage', function(done) {
 		$window.localStorage.setItem('sb_token', 'wasd');
+		$window.localStorage.setItem('userId', '76483');
 		$http.defaults.headers.common['Authorization'] = 'Bearer wasd';
 
 		$sbAuth.logout();
+		expect($window.localStorage.getItem('userId')).to.be.null;
 		expect($window.localStorage.getItem('sb_token')).to.be.null;
 		expect($http.defaults.headers.common['Authorization']).to.be.undefined;
 		done();
 	});
-
-
 
 });
