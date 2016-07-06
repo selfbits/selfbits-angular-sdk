@@ -8,6 +8,7 @@ Selfbits Backend-as-Service allows you to skip backend development and focus on 
 * [$sbAuth](#sbAuth) - Handles Social & Basic Auth for you
 * [$sbDatabase](#sbDatabase) - Puts a ready-to use database integration at your fingertips
 * [$sbPush](#sbPush) - Allows to easily use Push Notifications in your App
+* [$sbFile](#sbFile) - Allows to easily use file storage in your App
 
 ## Installation
 
@@ -286,6 +287,45 @@ todo.save(newTodo, function(res){
   //handle an error
 });
 ```
+
+## <a name="sbFile"></a> `$sbFile`
+* [$sbFile.upload(params)](#sbFileUpload)
+
+### <a name="sbFileUpload"></a> `$sbFile.upload(params)`
+Upload a file to the authenticated user's file store. Unified function that initiates, executes and verifies the upload.
+#### Parameters
+| Param        | Type          | required  | default | Details  |
+| -------------|:-------------:| -----:| -----:| :----- |
+| params       | `Object`      | true  |  | JavaScript object containing upload information |
+| params.file       | `File`      | true  |  | The file you want to upload  |
+| params.filePath       | `String`      | false  | params.file.name  |  The destination path where you want to put the file. This path is prefixed by `<PROJECT-ID>/<USER-ID>/` |
+| params.permissionScope       | `String`      | false  | `user` | The permission scope: 'user' = only the uploading user can access the file. '*': Every authenticated user can access the file with its fileId. |
+
+#### Returns
+* __response__ the file metadata object from the server
+
+#### Usage
+
+```javascript
+var f = new File(["plain text file content"], "filename.txt", {
+  type: "text/plain",
+  lastModified: new Date()
+})
+var params = {
+  file: f,
+  filePath: 'myFile.txt'
+}
+$sbFile.upload(params)
+  .then(function(response) {
+      // do something with file metadata response
+  })
+  .catch(function(err) {
+      // Handle errors here, such as displaying a notification
+      // for invalid email and/or password.
+  })
+ };
+```
+
 
 ## License
 
