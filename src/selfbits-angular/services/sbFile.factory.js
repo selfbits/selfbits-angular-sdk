@@ -7,11 +7,42 @@
     function sbFile($http, $q, $window, $rootScope, $timeout, sbConfig, $log) {
 
         var sbFile = {
+            get: get,
             upload: upload,
             initiateUpload: initiateUpload,
             executeUpload: executeUpload,
             verifyUpload: verifyUpload
         };
+
+        /**
+         * Get file metadata containing a temporary download link.
+         * @param params = {
+         *          fileId: ID of the uploaded file,
+         *          expiresInSeconds: Define the time to live of the temporary download link
+         *       }
+         */
+        function get(params) {
+            var q = $q.defer();
+            if (!params.fileId) {
+                q.reject({
+                    message: 'Missing fileId!'
+                });
+            } else {
+                var options = {};
+                if (params.expiresInSeconds) {
+                    options.expiresInSeconds = params.expiresInSeconds;
+                }
+                $http.get(sbConfig.domain + '/api/v1/file/' + params.fileId, {
+                        params: options
+                    })
+                    .then(function(res) {
+                        q.resolve(res.data);
+                    }, function(err) {
+                        q.reject(err);
+                    });
+            }
+            return q.promise;
+        }
 
         /**
          * Upload a private file to the authorized user's folder.
@@ -20,7 +51,6 @@
          *          filePath: The destination path where you want to put the file. Default is the file name.
          *          permissionScope: 'user' = only the uploading user can access the file. '*': Every authenticated user can access the file if he has its fileId.
          *       }
-         *
          */
         function upload(params) {
             var q = $q.defer();
@@ -29,9 +59,10 @@
             initiateUpload(params)
                 .then(function(response) {
                     initiateUploadResponse = response;
-                    return executeUpload(response.putFileUrl, file);
+                    return executeUpload(initiateUploadResponse.putFileUrl, file);
                 })
-                .then(function(etag) {
+                .then(function(uploadResponse) {
+                    var etag = uploadResponse.headers('ETag');
                     return verifyUpload(initiateUploadResponse.fileId, etag);
                 })
                 .then(function(verificationResponse) {
@@ -79,7 +110,7 @@
                     },
                     data: file
                 }).then(function(response) {
-                    q.resolve(response.headers('ETag'));
+                    q.resolve(response);
                 }, function(err) {
                     q.reject({
                         message: 'Upload failed! Please try again!'
