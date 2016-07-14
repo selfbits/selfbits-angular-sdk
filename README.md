@@ -248,6 +248,9 @@ var todo = $sbDatabase.table('todo');
 // retrieve all todos and bind them to the $scope
 $scope.myTodos = todo.get();
 
+// retrieve single todo by id and bind it to $scope
+$scope.singleTodo = todo.get({_id:"57879806aeb310dc651899ef"});
+
 // retrieve all todos and bind them to the $scope
 // but this time also request meta data and deep-linked objects
 $scope.myTodos = todo.get({ meta: true, deep: true});
