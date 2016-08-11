@@ -77,6 +77,21 @@ describe('sbAuth Factory', function() {
 		$httpBackend.flush();
 	});
 
+	it('signupAnonymous() should allow anonymous signup and exchange for JWT Token', function(done) {
+		$httpBackend.expect('POST', 'http://www.test.de/api/v1/auth/signup/anonymous').respond(200, {
+			token: 'fancyToken',
+			userId: '64812372'
+		});
+
+		$sbAuth.signupAnonymous().then(function(res) {
+			expect($window.localStorage.getItem('userId')).to.equal('64812372');
+			expect($window.localStorage.getItem('sb_token')).to.equal('fancyToken');
+			expect($http.defaults.headers.common['Authorization']).to.equal('Bearer fancyToken');
+			done();
+		});
+		$httpBackend.flush();
+	});
+
 	it('social() should allow social auth', function(done) {
 		/*
 		 | this is a little tricky:

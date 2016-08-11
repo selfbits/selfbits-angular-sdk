@@ -9,6 +9,7 @@
             unlink: unlink,
             login: login,
             signup: signup,
+			signupAnonymous: signupAnonymous,
             logout: logout,
             password: password,
             getUserId: getUserId,
@@ -112,6 +113,22 @@
         function signup(user) {
             var deferred = new $q.defer();
             $http.post(sbConfig.domain + '/api/v1/auth/signup', user).then(function(res) {
+                sbState.setToken(res.data.token);
+                sbState.setUserId(res.data.userId);
+                sbDevice.sync().then(function() {
+                    deferred.resolve(res.data);
+                }, function(err) {
+                    deferred.reject(err);
+                });
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        }
+
+		function signupAnonymous() {
+            var deferred = new $q.defer();
+            $http.post(sbConfig.domain + '/api/v1/auth/signup/anonymous').then(function(res) {
                 sbState.setToken(res.data.token);
                 sbState.setUserId(res.data.userId);
                 sbDevice.sync().then(function() {
