@@ -449,8 +449,8 @@
     function sbPush($http, $q, $window, $rootScope, $timeout, sbConfig, $log) {
 
         var sbPush = {
-            push : null,
-            pushRegistrationData : null,
+            push: null,
+            pushRegistrationData: null,
             sync: sync,
             init: init,
             unregister: unregister,
@@ -458,7 +458,8 @@
         };
 
         function sync() {
-            if ($window.device && $window.PushNotification && sbPush.pushRegistrationData.registrationId) {
+            if ($window.device && $window.device.uuid && $window.PushNotification &&
+                sbPush.pushRegistrationData && sbPush.pushRegistrationData.registrationId) {
                 return $http.post(sbConfig.domain + '/api/v1/user/device/notification', {
                     uuid: $window.device.uuid,
                     deviceToken: sbPush.pushRegistrationData.registrationId
