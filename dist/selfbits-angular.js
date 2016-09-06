@@ -458,7 +458,8 @@
             sync: sync,
             init: init,
             unregister: unregister,
-            setBadgeNumber: setBadgeNumber
+            setBadgeNumber: setBadgeNumber,
+            clearAllNotifications: clearAllNotifications
         };
 
         function sync() {
@@ -490,23 +491,44 @@
 
         function unregister(options) {
             var q = $q.defer();
-            $window.PushNotification.unregister(function(result) {
-                q.resolve(result);
-            }, function(error) {
-                q.reject(error);
-            }, options);
-
+            if ($window.PushNotification) {
+                $window.PushNotification.unregister(function(result) {
+                    q.resolve(result);
+                }, function(error) {
+                    q.reject(error);
+                }, options);
+            } else {
+                q.reject(new Error('Missing cordova environment'));
+            }
             return q.promise;
         }
 
         // iOS only
         function setBadgeNumber(number) {
             var q = $q.defer();
-            $window.PushNotification.setApplicationIconBadgeNumber(function(result) {
-                q.resolve(result);
-            }, function(error) {
-                q.reject(error);
-            }, number);
+            if ($window.PushNotification) {
+                $window.PushNotification.setApplicationIconBadgeNumber(function(result) {
+                    q.resolve(result);
+                }, function(error) {
+                    q.reject(error);
+                }, number);
+            } else {
+                q.reject(new Error('Missing cordova environment'));
+            }
+            return q.promise;
+        }
+
+        function clearAllNotifications() {
+            var q = $q.defer();
+            if ($window.PushNotification) {
+                $window.PushNotification.clearAllNotifications(function() {
+                    q.resolve();
+                }, function(error) {
+                    q.reject(error);
+                });
+            } else {
+                q.reject(new Error('Missing cordova environment'));
+            }
             return q.promise;
         }
 
@@ -565,4 +587,27 @@
 
 		return sbState;
 	}
+})(angular);
+
+(function(angular) {
+    angular
+        .module('selfbitsAngular')
+        .factory('$sbUser', sbUser);
+
+    function sbUser(sbConfig, $q, $window, $http) {
+        var sbUser = {
+            current: current
+        };
+
+        function current() {
+            var q = new $q.defer();
+            $http.get(sbConfig.domain + '/api/v1/user').then(function(res) {
+                q.resolve(res);
+            }, function(err) {
+                q.reject(err);
+            });
+            return q.promise;
+        }
+        return sbUser;
+    }
 })(angular);
