@@ -68,7 +68,7 @@
         }
 
         function getToken(providerName, uniqueState) {
-            return $http.get(sbConfig.domain + '/api/v1/oauth/' + providerName + '/token?sb_app_id=' + sbConfig.id + '&sb_app_secret=' + sbConfig.secret + '&state=' + uniqueState);
+            return $http.get(sbConfig.domain + '/api/v1/oauth/' + providerName + '/token?state=' + uniqueState);
         }
 
         function unlink(providerName) {

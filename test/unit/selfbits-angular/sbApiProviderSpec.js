@@ -33,6 +33,14 @@ describe('sbApiProvider', function() {
 		done();
 	});
 
+	it('should set app secret to null instead of empty string', function(done) {
+		this.$sbApiProvider.appSecret = '';
+		expect(this.$sbApiProvider.appSecret).to.equal(null);
+		expect(this.sbConfig.secret).to.equal(null);
+		this.$sbApiProvider.appSecret = null;
+		done();
+	});
+
 	it('should allow to set app domain', function(done) {
 		this.$sbApiProvider.domain = 'http://test.de';
 		expect(this.$sbApiProvider.domain).to.equal('http://test.de');

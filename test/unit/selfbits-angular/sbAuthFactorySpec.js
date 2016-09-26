@@ -102,7 +102,7 @@ describe('sbAuth Factory', function() {
 
 		var windowStub = sinon.stub($window, 'open', function() {
 			var genGuid = guidSpy.getCall(0).returnValue + guidSpy.getCall(1).returnValue;
-			$httpBackend.expect('GET', 'http://www.test.de/api/v1/oauth/facebook/token?sb_app_id=fancyId&sb_app_secret=fancySecret&state=' + genGuid).respond(200, {
+			$httpBackend.expect('GET', 'http://www.test.de/api/v1/oauth/facebook/token?state=' + genGuid).respond(200, {
 				token: 'fancyToken',
 				userId: '648372'
 			});
